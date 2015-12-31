@@ -157,13 +157,15 @@ postOrdemR = do
 
 getListarOrdemR :: Handler Html
 getListarOrdemR = do
-                 ordens <- runDB $ (rawSql "SELECT ??, ?? \
+                 ordens <- runDB $ (rawSql "SELECT ??, ??, ?? \
                                    \FROM ordem INNER JOIN peca \
-                                   \ON ordem.peca_id=peca.id" [])::Handler [(Entity Ordem, Entity Peca)]
+                                   \ON ordem.peca_id=peca.id \
+                                   \INNER JOIN fornecedor \
+                                   \ON ordem.forn_id=fornecedor.id" [])::Handler [(Entity Ordem, Entity Peca, Entity Fornecedor)]
                  defaultLayout [whamlet|
                       <h1> Lista de Ordens
-                      $forall (Entity oq ordem, Entity _ np) <- ordens
-                          <p> Ordem do dia #{show $ utctDay $ ordemData ordem} #{fromSqlKey oq}: #{pecaNome np}
+                      $forall (Entity oq ordem, Entity _ np, Entity _ fn) <- ordens
+                          <p> Ordem do dia #{show $ utctDay $ ordemData ordem} #{fromSqlKey oq}: #{pecaNome np}: #{fornecedorNome fn}
                  |]
 
 connStr = "dbname=dd9en8l5q4hh2a host=ec2-107-21-219-201.compute-1.amazonaws.com user=kpuwtbqndoeyqb password=aCROh525uugAWF1l7kahlNN3E0 port=5432"
